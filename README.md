@@ -1,6 +1,7 @@
 # Arsenal RAG
 
-一个面向阿森纳足球知识的本地 RAG（检索增强生成）问答项目。项目使用 Markdown 作为知识源，FAISS 做向量检索，Transformers 模型生成回答。
+一个面向阿森纳足球知识的本地 RAG（检索增强生成）问答项目。项目使用 Markdown 作为知识源，FAISS 做向量检索，Transformers 模型生成回答。球员、教练以及球队的知识来自Wikipedia，积分榜信息来自Statbunker
+
 
 ## 快速开始
 
