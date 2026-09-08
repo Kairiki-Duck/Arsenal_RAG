@@ -4,7 +4,7 @@ import argparse
 import logging
 import sys
 
-from config import INDEX_PATH, METADATA_PATH
+from config import INDEX_PATH, METADATA_PATH, RERANKER_MODEL
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,9 +23,14 @@ def build_parser():
         help="retrieval metadata path",
     )
     parser.add_argument(
+        "--reranker-model",
+        default=RERANKER_MODEL,
+        help="cross-encoder reranker model; use an empty value to disable",
+    )
+    parser.add_argument(
         "--top-k",
         type=int,
-        default=3,
+        default=10,
         help="number of chunks to retrieve per question",
     )
     parser.add_argument(
@@ -103,6 +108,7 @@ def main(argv=None, rag=None, input_fn=input, output_fn=print):
                 config=RAGConfig(
                     index_path=args.index_path,
                     metadata_path=args.metadata_path,
+                    reranker_model=args.reranker_model or None,
                     default_top_k=args.top_k,
                 )
             )

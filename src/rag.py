@@ -5,10 +5,11 @@ import logging
 from os import PathLike
 from pathlib import Path
 
-from config import INDEX_PATH, METADATA_PATH
+from config import INDEX_PATH, METADATA_PATH, RERANKER_MODEL
 from src.generator import Generator
 from src.prompt import PromptBuilder
 from src.retriever import Retriever
+from src.reranker import Reranker
 
 
 LOGGER = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ class RAGConfig:
 
     index_path: str | PathLike[str] = INDEX_PATH
     metadata_path: str | PathLike[str] = METADATA_PATH
+    reranker_model: str | None = RERANKER_MODEL
     default_top_k: int = 3
 
     def __post_init__(self):
@@ -27,6 +29,10 @@ class RAGConfig:
             value = getattr(self, name)
             if not isinstance(value, (str, PathLike)) or not str(value).strip():
                 raise ValueError(f"{name} must be a non-empty path")
+        if self.reranker_model is not None and (
+            not isinstance(self.reranker_model, str) or not self.reranker_model.strip()
+        ):
+            raise ValueError("reranker_model must be a non-empty string or None")
         if (
             not isinstance(self.default_top_k, int)
             or isinstance(self.default_top_k, bool)
@@ -61,6 +67,11 @@ class RAG:
             Retriever(
                 index_path=self.config.index_file,
                 metadata_path=self.config.metadata_file,
+                reranker=(
+                    Reranker(model_path=self.config.reranker_model)
+                    if self.config.reranker_model is not None
+                    else None
+                ),
             )
             if retriever is None
             else retriever

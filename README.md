@@ -54,6 +54,7 @@ User: 阿森纳有哪些英超冠军赛季？
 ```bash
 export ARSENAL_EMBEDDING_MODEL=/path/to/embedding-model
 export ARSENAL_GENERATOR_MODEL=/path/to/generator-model
+export ARSENAL_RERANKER_MODEL=/path/to/reranker-model
 python build_index.py
 python main.py
 ```
@@ -76,12 +77,20 @@ python main.py
 
 - Embedding：`Qwen/Qwen3-Embedding-0.6B`
 - Generator：`Qwen/Qwen2.5-1.5B-Instruct`
+- Reranker：默认使用 `BAAI/bge-reranker-v2-m3`；也支持 Qwen3-Reranker 本地模型
 
 模型较大时可以使用本地路径，在 shell 中设置变量：
 
 ```bash
 export ARSENAL_EMBEDDING_MODEL=/path/to/embedding-model
 export ARSENAL_GENERATOR_MODEL=/path/to/generator-model
+export ARSENAL_RERANKER_MODEL=/path/to/reranker-model
+```
+
+检索会先使用 FAISS 召回候选，再使用 reranker 重排，最后将前 `top-k` 个结果交给生成模型。标准 CrossEncoder 模型使用 `sentence-transformers`，Qwen3-Reranker 使用其 `yes/no` logits 评分。若暂时不使用 reranker，可启动时传入空模型名：
+
+```bash
+python main.py --reranker-model ""
 ```
 
 程序不会自动读取 `.env` 文件；使用 shell、容器编排或 CI 的环境变量注入即可。

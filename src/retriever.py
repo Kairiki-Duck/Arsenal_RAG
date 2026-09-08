@@ -12,6 +12,8 @@ class Retriever:
         similarity_threshold=0.5,
         embedding_model=None,
         vector_store=None,
+        reranker=None,
+        rerank_multiplier=5,
     ):
         """Retrieve relevant chunks while preserving their metadata.
 
@@ -22,11 +24,19 @@ class Retriever:
             raise TypeError("similarity_threshold must be a number")
         if similarity_threshold < 0:
             raise ValueError("similarity_threshold must be non-negative")
+        if (
+            not isinstance(rerank_multiplier, int)
+            or isinstance(rerank_multiplier, bool)
+            or rerank_multiplier <= 0
+        ):
+            raise ValueError("rerank_multiplier must be a positive integer")
 
         self.embedding_model = embedding_model or EmbeddingModel()
         self.vector_store = vector_store or VectorStore(1)
         self.vector_store.load(index_path, metadata_path)
         self.similarity_threshold = similarity_threshold
+        self.reranker = reranker
+        self.rerank_multiplier = rerank_multiplier
 
     @staticmethod
     def _validate_options(query, top_k, adjacent_window):
@@ -91,9 +101,9 @@ class Retriever:
     def retrieve(
         self,
         query,
-        top_k=3,
+        top_k=10,
         metadata_filter=None,
-        adjacent_window=0,
+        adjacent_window=1,
         deduplicate=True,
     ):
         """Retrieve ranked chunks with optional metadata filtering and context.
@@ -114,6 +124,8 @@ class Retriever:
         query_embedding = self.embedding_model.encode([query])
 
         candidate_count = max(top_k, top_k * (2 * adjacent_window + 1))
+        if self.reranker is not None:
+            candidate_count = max(candidate_count, top_k * self.rerank_multiplier)
         raw_results = self.vector_store.search(
             query_embedding,
             top_k=candidate_count,
@@ -121,6 +133,7 @@ class Retriever:
 
         semantic_results = []
         seen = set()
+        semantic_limit = candidate_count if self.reranker is not None else top_k
         for result in raw_results:
             score = result.get("score")
             metadata = result.get("metadata")
@@ -142,8 +155,11 @@ class Retriever:
                 "metadata": dict(metadata),
                 "retrieval_type": "semantic",
             })
-            if len(semantic_results) >= top_k:
+            if len(semantic_results) >= semantic_limit:
                 break
+
+        if self.reranker is not None:
+            semantic_results = self.reranker.rerank(query, semantic_results, top_k)
 
         results = list(semantic_results)
         if adjacent_window:
@@ -167,6 +183,6 @@ class Retriever:
             result["rank"] = rank
         return results
 
-    def retriever(self, query, top_k=3):
+    def retriever(self, query, top_k=10):
         """Backward-compatible alias for the original public method."""
         return self.retrieve(query=query, top_k=top_k)

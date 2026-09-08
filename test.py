@@ -2,7 +2,7 @@
 
 import argparse
 
-from config import INDEX_PATH, METADATA_PATH
+from config import INDEX_PATH, METADATA_PATH, RERANKER_MODEL
 
 
 BASELINE_PROMPT = """你是一个专业的阿森纳足球俱乐部知识助手。
@@ -26,6 +26,11 @@ def build_parser():
     parser.add_argument("--model-path", default=GENERATOR_MODEL, help="生成模型路径")
     parser.add_argument("--index-path", default=INDEX_PATH)
     parser.add_argument("--metadata-path", default=METADATA_PATH)
+    parser.add_argument(
+        "--reranker-model",
+        default=RERANKER_MODEL,
+        help="RAG 使用的 reranker 模型；传入空值可禁用",
+    )
     parser.add_argument("--top-k", type=int, default=3)
     parser.add_argument("--max-new-tokens", type=int, default=256)
     return parser
@@ -65,7 +70,7 @@ def main(argv=None):
     from src.rag import RAG, RAGConfig
 
     print(f"正在加载模型：{args.model_path}")
-    print("模型 1 和模型 2 使用相同模型，但会分别实例化。")
+    print("模型 1 使用 RAG + reranker，模型 2 仅使用生成模型。")
 
     rag_generator = Generator(model_path=args.model_path)
     baseline_generator = Generator(model_path=args.model_path)
@@ -73,6 +78,7 @@ def main(argv=None):
         config=RAGConfig(
             index_path=args.index_path,
             metadata_path=args.metadata_path,
+            reranker_model=args.reranker_model or None,
             default_top_k=args.top_k,
         ),
         generator=rag_generator,
