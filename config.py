@@ -12,15 +12,15 @@ METADATA_PATH = Path(
 )
 EMBEDDING_MODEL = os.getenv(
 	"ARSENAL_EMBEDDING_MODEL",
-	"/home/HF_Model/Qwen/Qwen3-Embedding-4B",
+	"Qwen/Qwen3-Embedding-4B",
 )
 GENERATOR_MODEL = os.getenv(
 	"ARSENAL_GENERATOR_MODEL",
-	"/home/HF_Model/Qwen/Qwen2.5-14B-Instruct",
+	"Qwen/Qwen2.5-14B-Instruct",
 )
 RERANKER_MODEL = os.getenv(
 	"ARSENAL_RERANKER_MODEL",
-	"/home/HF_Model/Qwen/Qwen3-Reranker-4B",
+	"Qwen/Qwen3-Reranker-4B",
 )
 
 
