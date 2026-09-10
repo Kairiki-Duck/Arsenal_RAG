@@ -140,7 +140,7 @@ class PromptBuilder:
 回答要求：
 1. 优先使用参考资料，不要编造资料中没有的信息。
 2. 如果资料不足，请明确回答“根据现有资料无法确定”。
-3. 回答简洁、准确，并在相关事实后使用引用标记，可以用括号表明资料来源于哪个文件或标题。
+3. 回答简洁、准确，并在相关事实后使用引用标记，可以用括号表源于哪个文件。
 4. 不要提及 Embedding、FAISS、Retriever 等内部技术细节。
 
 <参考资料>
@@ -156,3 +156,4 @@ class PromptBuilder:
 def build_prompt(query, retrieved_results):
     """Backward-compatible convenience function."""
     return PromptBuilder().build(query, retrieved_results)
+明资料来

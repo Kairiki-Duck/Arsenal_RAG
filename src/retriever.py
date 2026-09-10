@@ -103,7 +103,7 @@ class Retriever:
         query,
         top_k=10,
         metadata_filter=None,
-        adjacent_window=1,
+        adjacent_window=0,
         deduplicate=True,
     ):
         """Retrieve ranked chunks with optional metadata filtering and context.
