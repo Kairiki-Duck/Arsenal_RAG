@@ -6,6 +6,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DOCUMENT_DIR = Path(os.getenv("ARSENAL_DOCUMENT_DIR", PROJECT_ROOT / "data" / "documents"))
+RAW_DATA_DIR = Path(os.getenv("ARSENAL_RAW_DATA_DIR", PROJECT_ROOT / "data" / "raw_data"))
 INDEX_PATH = Path(os.getenv("ARSENAL_INDEX_PATH", PROJECT_ROOT / "vector_db" / "index.faiss"))
 METADATA_PATH = Path(
 	os.getenv("ARSENAL_METADATA_PATH", PROJECT_ROOT / "vector_db" / "metadata.pkl")
